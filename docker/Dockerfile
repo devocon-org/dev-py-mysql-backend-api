@@ -1,14 +1,15 @@
 # docker/Dockerfile
 FROM python:3.9-slim
 
+# Set working directory
 WORKDIR /app
 
-COPY ../app/requirements.txt .
-
+# Copy requirements and install dependencies
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ../app/ .
-
-EXPOSE 5000
+# Copy app files
+COPY app/ /app/
 
 CMD ["python", "app.py"]
+
