@@ -1,17 +1,8 @@
 # app/app.py
 from flask import Flask, jsonify
-import mysql.connector
+from dbconnection import get_db_connection
 
 app = Flask(__name__)
-
-# Database connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host='mysql',  # The MySQL container name
-        user='root',
-        password='my-secret-pw',
-        database='testdb'
-    )
 
 @app.route('/')
 def home():
@@ -19,11 +10,16 @@ def home():
 
 @app.route('/data')
 def data():
+    # Get DB connection
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM my_table')
-    rows = cursor.fetchall()
-    return jsonify(rows)
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM my_table')
+        rows = cursor.fetchall()
+        conn.close()  # Always close the connection
+        return jsonify(rows)
+    else:
+        return jsonify(error="Database connection failed"), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
